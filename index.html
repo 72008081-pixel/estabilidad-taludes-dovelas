@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoTalud Dovelas Pro · Estabilidad de Taludes (Fellenius & Bishop) y AutoCAD 1:1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Estilos de Impresión / PDF */
+        @media print {
+            body { background: white !important; color: black !important; font-size: 10pt; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .card-print { border: 1px solid #cbd5e1 !important; box-shadow: none !important; break-inside: avoid; }
+            #taludSvg { max-height: 380px !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased">
+
+    <!-- BARRA SUPERIOR / HEADER PROFESIONAL -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 shadow-md sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center shadow-inner">
+                    <i data-lucide="mountain" class="w-6 h-6 text-slate-950"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg font-black tracking-tight text-white">GeoTalud Dovelas Pro</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">AutoCAD 1:1 Ready</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Estabilidad de Taludes · Método de Fellenius y Bishop · Nivel Freático y Áreas Parciales</p>
+                </div>
+            </div>
+
+            <!-- Datos del Estudiante y Universidad -->
+            <div class="flex items-center gap-3 text-xs bg-slate-800/80 px-3.5 py-1.5 rounded-lg border border-slate-700/80">
+                <div class="text-right">
+                    <div class="font-bold text-slate-200">Ulianov Sabath Cuba Valencia</div>
+                    <div class="text-[11px] text-slate-400 font-mono">DNI: <span class="text-amber-400 font-bold">72008081</span> (ab = 81)</div>
+                </div>
+                <div class="w-px h-7 bg-slate-700"></div>
+                <div class="text-left hidden sm:block">
+                    <div class="text-slate-300 font-semibold">Universidad Continental</div>
+                    <div class="text-[11px] text-emerald-400">Docente: Ing. E. Romoacca</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE PRESETS RÁPIDOS -->
+        <div class="bg-slate-950/70 border-t border-slate-800 px-4 sm:px-8 py-2 overflow-x-auto">
+            <div class="max-w-7xl mx-auto flex items-center gap-2 text-xs">
+                <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px] mr-1">Casos Rápidos:</span>
+                <button id="btnPresetExamen" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-medium transition flex items-center gap-1.5">
+                    <i data-lucide="target" class="w-3.5 h-3.5"></i> 🎯 Examen C2 Ulianov (DNI: 72008081 - ab=81)
+                </button>
+                <button id="btnPresetFreatico" class="px-2.5 py-1 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 font-medium transition flex items-center gap-1.5">
+                    <i data-lucide="droplet" class="w-3.5 h-3.5"></i> 💧 Con Nivel Freático (NAF = 7.50 m)
+                </button>
+                <button id="btnPreset9Dov" class="px-2.5 py-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-medium transition flex items-center gap-1.5">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i> 📑 Refinamiento en 9 Dovelas
+                </button>
+                <button id="btnPresetPresa" class="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-medium transition flex items-center gap-1.5">
+                    <i data-lucide="activity" class="w-3.5 h-3.5"></i> 🏔️ Presa de Tierra (h=24 m, R=42 m)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ENCABEZADO EXCLUSIVO PARA IMPRESIÓN (PDF MEMORIA DE CÁLCULO) -->
+    <div class="hidden print-only p-6 border-b-2 border-slate-800 mb-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold uppercase tracking-tight">Universidad Continental – Facultad de Ingeniería Civil</h1>
+                <h2 class="text-md font-semibold text-slate-700">Mecánica de Suelos II – Memoria de Cálculo: Estabilidad de Taludes (Método de Dovelas)</h2>
+            </div>
+            <div class="text-right text-xs">
+                <p><strong>Alumno:</strong> Ulianov Sabath Cuba Valencia</p>
+                <p><strong>DNI:</strong> 72008081 (ab = 81)</p>
+                <p><strong>Docente:</strong> Ing. E. Romoacca</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL (LAYOUT 2 COLUMNAS) -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- ===================================================================
+             COLUMNA IZQUIERDA: PANEL DE ENTRADA DE DATOS (SUPER SIMPLE)
+             =================================================================== -->
+        <aside class="lg:col-span-4 space-y-4 no-print">
+
+            <!-- TARJETA: PARÁMETROS GEOMÉTRICOS DEL TALUD -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+                <div class="bg-slate-900 px-4 py-2.5 flex items-center justify-between text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="triangle" class="w-4 h-4 text-amber-400"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider">1. Geometría del Talud y Falla</h2>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono">1.5H : 1V</span>
+                </div>
+                <div class="p-4 space-y-3.5">
+                    <!-- Altura del Talud h -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                Altura del Talud (<span class="font-mono text-amber-600">h</span>)
+                            </label>
+                            <span class="text-xs font-mono font-bold text-slate-900">m</span>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="inputH" step="0.01" min="1" max="100" value="12.81" class="w-full px-3 py-1.5 text-sm font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white outline-none transition">
+                            <span class="absolute right-3 top-1.5 text-xs text-slate-400 font-mono">12.ab</span>
+                        </div>
+                    </div>
+
+                    <!-- Pendiente del Talud (H:1V) -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-700">
+                                Pendiente Horizontal (<span class="font-mono text-slate-800">m H : 1V</span>)
+                            </label>
+                            <span class="text-xs font-mono font-bold text-slate-900">β = 33.69°</span>
+                        </div>
+                        <input type="number" id="inputM" step="0.1" min="0.5" max="5.0" value="1.5" class="w-full px-3 py-1.5 text-sm font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white outline-none transition">
+                    </div>
+
+                    <!-- Radio del Círculo de Falla R -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                Radio de Falla (<span class="font-mono text-amber-600">R</span>)
+                            </label>
+                            <span class="text-xs font-mono font-bold text-slate-900">m</span>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="inputR" step="0.01" min="2" max="200" value="20.81" class="w-full px-3 py-1.5 text-sm font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white outline-none transition">
+                            <span class="absolute right-3 top-1.5 text-xs text-slate-400 font-mono">20.ab</span>
+                        </div>
+                    </div>
+
+                    <!-- Modo de Cálculo del Centro O -->
+                    <div>
+                        <label class="text-xs font-semibold text-slate-700 block mb-1">Modo de Ubicación del Centro O</label>
+                        <select id="selectModoCentro" class="w-full px-2.5 py-1.5 text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                            <option value="romoacca" selected>Automático: Guía Romoacca (Radio vertical divide pasiva/activa)</option>
+                            <option value="angulos">Ángulos directrices (30° en pie / 18° en corona)</option>
+                            <option value="manual">Manual (Definir X_O e Y_O personalizados)</option>
+                        </select>
+                    </div>
+
+                    <!-- Número de Dovelas -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-700">Número de Dovelas (<span class="font-mono text-emerald-600">n</span>)</label>
+                            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800" id="badgeNDov">6 dovelas</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="range" id="sliderNDovelas" min="4" max="16" step="1" value="6" class="flex-1 accent-emerald-600">
+                            <input type="number" id="inputNDovelas" min="4" max="16" value="6" class="w-14 px-2 py-1 text-xs font-mono font-bold text-center bg-slate-50 border border-slate-300 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA: PROPIEDADES GEOTÉCNICAS DEL SUELO -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+                <div class="bg-slate-900 px-4 py-2.5 flex items-center justify-between text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider">2. Propiedades del Suelo</h2>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Mohr-Coulomb</span>
+                </div>
+                <div class="p-4 grid grid-cols-3 gap-2.5">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-600 block mb-0.5">γ húmedo</label>
+                        <input type="number" id="inputGammaH" step="0.05" value="16.45" class="w-full px-2 py-1.5 text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg">
+                        <span class="text-[10px] text-slate-400 block mt-0.5">kN/m³</span>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-600 block mb-0.5">Cohesión c'</label>
+                        <input type="number" id="inputCohesion" step="0.1" value="5.60" class="w-full px-2 py-1.5 text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg">
+                        <span class="text-[10px] text-slate-400 block mt-0.5">kN/m²</span>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-600 block mb-0.5">Fricción ϕ'</label>
+                        <input type="number" id="inputPhi" step="0.5" value="29.0" class="w-full px-2 py-1.5 text-xs font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg">
+                        <span class="text-[10px] text-slate-400 block mt-0.5">grados (°)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA: NIVEL FREÁTICO (NAF) CON TOGGLE SENCILLO -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+                <div class="bg-slate-900 px-4 py-2.5 flex items-center justify-between text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="droplet" class="w-4 h-4 text-blue-400"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider">3. Condición de Agua (NAF)</h2>
+                    </div>
+                    <!-- Interruptor Switch -->
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleNaf" class="sr-only peer">
+                        <div class="relative w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ms-2 text-[11px] font-medium text-slate-300">Activar</span>
+                    </label>
+                </div>
+
+                <!-- Banner Verde cuando NO HAY Nivel Freático (Caso Examen) -->
+                <div id="bannerSinNaf" class="p-3.5 bg-emerald-50/70 border-b border-emerald-100 flex items-start gap-2.5">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0"></i>
+                    <div class="text-xs text-emerald-800 leading-snug">
+                        <strong>Condición Seca (Sin Nivel Freático):</strong> Tal como indicó expresamente el docente Ing. Romoacca, los casilleros de <span class="font-mono font-bold">Asat, γsat, hw, u</span> se completan automáticamente con <strong>cero (0)</strong>.
+                    </div>
+                </div>
+
+                <!-- Campos de NAF cuando está activo -->
+                <div id="panelNafCampos" class="p-4 space-y-3 bg-blue-50/30 hidden">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[11px] font-semibold text-slate-700 block mb-0.5">Cota NAF (m)</label>
+                            <input type="number" id="inputYNafPie" step="0.25" value="7.50" class="w-full px-2 py-1.5 text-xs font-mono font-bold bg-white border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-semibold text-slate-700 block mb-0.5">γ saturado (kN/m³)</label>
+                            <input type="number" id="inputGammaSat" step="0.1" value="18.50" class="w-full px-2 py-1.5 text-xs font-mono font-bold bg-white border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-blue-700 bg-blue-100/60 p-2 rounded-lg border border-blue-200">
+                        💧 Se calculará el área saturada <span class="font-mono">Asat</span>, la altura del agua <span class="font-mono">hw</span> y la presión de poros <span class="font-mono">u = hw · γw</span> en la base de cada dovela.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FICHA DETALLADA DE LA DOVELA SELECCIONADA -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+                <div class="bg-slate-800 px-4 py-2 flex items-center justify-between text-white">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-wider">Inspector de Dovela</h3>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Click en cualquier dovela</span>
+                </div>
+                <div id="dovelaCard" class="p-4">
+                    <!-- Se inyecta dinámicamente desde app.js -->
+                </div>
+            </div>
+
+        </aside>
+
+
+        <!-- ===================================================================
+             COLUMNA DERECHA: DASHBOARD DE RESULTADOS, VISOR SVG Y TABLAS
+             =================================================================== -->
+        <section class="lg:col-span-8 space-y-4">
+
+            <!-- KPI CARDS: FACTORES DE SEGURIDAD Y MOMENTOS -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <!-- FS Fellenius -->
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>FS Fellenius</span>
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span id="kpiFsFell" class="text-2xl font-black font-mono text-slate-900">1.77</span>
+                        <span id="kpiFsBadge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">ESTABLE</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 mt-1 font-mono">Σ M_R / Σ M</div>
+                </div>
+
+                <!-- FS Bishop -->
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>FS Bishop</span>
+                        <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span id="kpiFsBishop" class="text-2xl font-black font-mono text-blue-700">1.84</span>
+                        <span class="text-[10px] font-semibold text-blue-600">Iterativo</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 mt-1 font-mono">Convergencia Picard</div>
+                </div>
+
+                <!-- Momento Resistente -->
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>Σ M Resistente</span>
+                        <i data-lucide="lock" class="w-4 h-4 text-emerald-600"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="kpiSumMR" class="text-xl font-black font-mono text-emerald-700">2230.91</span>
+                        <span class="text-[11px] text-slate-500 ml-1">kN·m/m</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 mt-1 font-mono">Resistencia al corte</div>
+                </div>
+
+                <!-- Momento Actuante -->
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                        <span>Σ M Actuante</span>
+                        <i data-lucide="zap" class="w-4 h-4 text-red-600"></i>
+                    </div>
+                    <div class="mt-2">
+                        <span id="kpiSumM" class="text-xl font-black font-mono text-red-700">1257.07</span>
+                        <span class="text-[11px] text-slate-500 ml-1">kN·m/m</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 mt-1 font-mono">Fuerzas motrices</div>
+                </div>
+            </div>
+
+            <!-- VISOR GRÁFICO INTERACTIVO SVG -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden card-print">
+                <div class="bg-slate-900 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="eye" class="w-4 h-4 text-amber-400"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider">Sección Transversal y Modelo de Dovelas</h2>
+                        <span id="kpiAreaTotal" class="text-xs font-mono font-bold text-amber-400 ml-2">251.90 m²</span>
+                    </div>
+
+                    <!-- Controles de Visualización -->
+                    <div class="flex items-center gap-3 text-xs no-print">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggleFuerzas" checked class="accent-red-600 rounded">
+                            <span class="text-slate-300">Fuerzas (W, S)</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggleCotas" checked class="accent-blue-600 rounded">
+                            <span class="text-slate-300">Cotas</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggleRadios" checked class="accent-cyan-600 rounded">
+                            <span class="text-slate-300">Radios O</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Contenedor del SVG -->
+                <div class="relative bg-white overflow-hidden p-2 flex items-center justify-center">
+                    <svg id="taludSvg" viewBox="0 0 1000 580" class="w-full h-auto max-h-[500px] select-none"></svg>
+                </div>
+
+                <!-- Barra de Leyenda Geotécnica -->
+                <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-3">
+                    <div class="flex items-center gap-4">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3.5 h-3.5 rounded bg-amber-400/40 border border-amber-600 inline-block"></span>
+                            Cuña Pasiva (α < 0, Estabilizadora)
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3.5 h-3.5 rounded bg-emerald-400/40 border border-emerald-600 inline-block"></span>
+                            Zona Activa (α > 0, Desestabilizadora)
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3.5 h-1 bg-red-600 inline-block"></span>
+                            Círculo de Falla
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3.5 h-1 bg-blue-600 border-b border-dashed inline-block"></span>
+                            N.A.F.
+                        </span>
+                    </div>
+                    <div class="text-[11px] font-mono text-slate-500">Escala de Dibujo 1:1</div>
+                </div>
+            </div>
+
+            <!-- TABLA OFICIAL DE RESULTADOS DE FELLENIUS (IDÉNTICA A LA DEL DOCENTE) -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden card-print">
+                <div class="bg-slate-900 px-4 py-2.5 flex items-center justify-between text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="table" class="w-4 h-4 text-emerald-400"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider">Cuadro Oficial del Método de Dovelas (Fellenius)</h2>
+                    </div>
+                    <span class="text-xs text-slate-300 font-mono">Unidades: kN, m, kPa</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-800 text-white font-semibold uppercase text-[10px] tracking-wider border-b border-slate-700">
+                            <tr>
+                                <th class="px-2.5 py-2.5 text-center">Dovela</th>
+                                <th class="px-2 py-2.5 text-center">b [m]</th>
+                                <th class="px-2 py-2.5 text-center">α [°]</th>
+                                <th class="px-2 py-2.5 text-center">Δl [m]</th>
+                                <th class="px-2.5 py-2.5 text-right bg-amber-900/40 text-amber-200">A_h [m²]</th>
+                                <th class="px-2 py-2.5 text-right bg-blue-900/40 text-blue-200">A_sat [m²]</th>
+                                <th class="px-2 py-2.5 text-center">γ_h</th>
+                                <th class="px-2 py-2.5 text-center">γ_sat</th>
+                                <th class="px-2 py-2.5 text-center">c'</th>
+                                <th class="px-2 py-2.5 text-center">ϕ'</th>
+                                <th class="px-2.5 py-2.5 text-right text-red-300">W [kN/m]</th>
+                                <th class="px-2 py-2.5 text-center">hw [m]</th>
+                                <th class="px-2 py-2.5 text-center bg-blue-900/30 text-blue-200">u [kPa]</th>
+                                <th class="px-2.5 py-2.5 text-right text-emerald-300">MR [kN·m/m]</th>
+                                <th class="px-2.5 py-2.5 text-right text-red-300">M [kN·m/m]</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaFelleniusBody" class="divide-y divide-slate-200 text-slate-800">
+                            <!-- Inyectado dinámicamente -->
+                        </tbody>
+                        <tfoot id="tablaFelleniusFoot">
+                            <!-- Inyectado dinámicamente -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- COMPARACIÓN DE MÉTODOS DE CÁLCULO DE ÁREAS -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden card-print">
+                <div class="bg-slate-900 px-4 py-2.5 flex items-center justify-between text-white">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-4 h-4 text-purple-400"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider">Comparativa de Áreas: AutoCAD vs. Métodos Gráficos Aproximados</h2>
+                    </div>
+                    <span class="text-[10px] text-purple-300 font-mono">Dovela por Dovela</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 font-semibold text-[11px] border-b border-slate-200">
+                            <tr>
+                                <th class="py-2 px-3 text-center">Dovela</th>
+                                <th class="py-2 px-3 text-center bg-amber-50 text-amber-900 font-bold">1. AutoCAD (Polilínea Exacta)</th>
+                                <th class="py-2 px-3 text-center">2. Trapecio Gráfico</th>
+                                <th class="py-2 px-3 text-center">3. Ordenada Media</th>
+                                <th class="py-2 px-3 text-center bg-purple-50 text-purple-900 font-bold">4. Simpson 1/3 (Parabólico)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaAreasBody">
+                            <!-- Inyectado dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BARRA DE ACCIONES Y EXPORTACIONES A AUTOCAD / EXCEL / PDF -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 rounded-xl shadow-md border border-slate-700 text-white no-print">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4 text-amber-400"></i>
+                            Exportaciones Automatizadas de Ingeniería
+                        </h3>
+                        <p class="text-xs text-slate-400">Descarga directa en formato nativo de AutoCAD (1:1), Excel y Memoria de Cálculo</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <!-- Botón Exportar DXF AutoCAD 1:1 -->
+                        <button id="btnExportDXF" class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow flex items-center justify-center gap-2">
+                            <i data-lucide="file-code" class="w-4 h-4"></i>
+                            Descargar AutoCAD (.DXF 1:1)
+                        </button>
+
+                        <!-- Botón Exportar Excel CSV -->
+                        <button id="btnExportCSV" class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-2">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            Excel (.CSV)
+                        </button>
+
+                        <!-- Botón Script AutoCAD -->
+                        <button id="btnExportSCR" class="px-3 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition flex items-center justify-center gap-1.5" title="Script de comandos automatizados de AutoCAD">
+                            <i data-lucide="terminal" class="w-4 h-4"></i>
+                            Script (.SCR)
+                        </button>
+
+                        <!-- Botón Imprimir PDF -->
+                        <button id="btnPrintReport" class="px-3 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition flex items-center justify-center gap-1.5" title="Imprimir o guardar en PDF">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            PDF
+                        </button>
+
+                        <!-- Botón Correo -->
+                        <button id="btnOpenCorreoModal" class="px-3.5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            Correo Docente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- MODAL DE CORREO FORMAL PARA EL DOCENTE -->
+    <div id="modalCorreo" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 px-5 py-3.5 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="mail-check" class="w-5 h-5 text-amber-400"></i>
+                    <div>
+                        <h3 class="text-sm font-bold">Correo Institucional Listo para Entrega</h3>
+                        <p class="text-[11px] text-slate-400">Destinatario: eromoacca@continental.edu.pe</p>
+                    </div>
+                </div>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto flex-1">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Cuerpo del Mensaje (Formato Formal):</label>
+                <textarea id="correoBodyText" rows="14" class="w-full p-3 font-mono text-xs bg-slate-50 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 text-slate-800" readonly></textarea>
+            </div>
+            <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex justify-between items-center">
+                <span class="text-xs text-slate-500">Recuerda adjuntar el PDF y el archivo DXF</span>
+                <button id="btnCopyCorreo" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-lg transition shadow flex items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    Copiar Texto Completo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-4 mt-8 text-center text-xs no-print">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-medium text-slate-300">GeoTalud Dovelas Pro · Suite Geotécnica de Estabilidad de Taludes</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Desarrollado para Ulianov Sabath Cuba Valencia (DNI: 72008081) · Universidad Continental · Docente: Ing. E. Romoacca</p>
+        </div>
+    </footer>
+
+    <!-- Scripts de la Aplicación -->
+    <script type="module" src="./app.js"></script>
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>
