@@ -71,7 +71,16 @@ Puedes acceder y utilizar la aplicación directamente desde cualquier navegador 
    * **Cada dovela es una `LWPOLYLINE` cerrada (`close=True`)** con sombreado `HATCH` (`ANSI31`). Al seleccionar cualquier dovela en AutoCAD y ejecutar el comando `AREA` (Object) o `LIST`, reporta el área idéntica a la aplicación.
    * Incluye Vista 1 (Talud general), Vista 2 (Desglose individual de cada dovela), Cuadro Oficial de Fellenius dibujado vectorialmente y Membrete Oficial con datos del estudiante.
 
-7. **Otras Exportaciones:**
+7. **Excel Automatizado (.XLSX) con Fórmulas Simples y Colores Pasteles:**
+   * Archivo Excel nativo preconfigurado para el examen de Ulianov Cuba Valencia: [`ESTABILIDAD_TALUD_DOVELAS_ULIANOV_CUBA_72008081.xlsx`](./ESTABILIDAD_TALUD_DOVELAS_ULIANOV_CUBA_72008081.xlsx).
+   * **Diseño 100% Humano:** Estructurado en "cuadritos" limpios de ingeniería civil con encabezados en tonos pasteles suaves (celeste, crema, menta, durazno) y **todas las letras estrictamente en color negro** (sin fondos oscuros ni letras blancas).
+   * **Fórmulas Básicas Universales:** Utiliza únicamente fórmulas elementales (`SUMA`, `SENO`, `COS`, `ASENO`, `RADIANES`, `RAIZ`, `SI`, `REDONDEAR`) para que cualquier docente o alumno pueda auditar paso a paso los cálculos.
+   * **Automatizado para cualquier talud:** Cambias la altura $h$, el radio $R$ o el suelo en el Cuadro 2 y toda la hoja se recalcula instantáneamente.
+   * Incluye 2 hojas completas:
+     1. *Hoja 1:* Cálculo de Talud, Geometría del Centro, Cuadro Oficial de Fellenius y Diagnóstico Geotécnico.
+     2. *Hoja 2:* Comparativa detallada de 4 métodos de áreas con cálculo de error porcentual.
+
+8. **Otras Exportaciones:**
    * **Excel / CSV:** Descarga la tabla completa para procesar en hojas de cálculo.
    * **Script AutoCAD (.SCR):** Automatización batch en AutoCAD.
    * **PDF / Memoria de Cálculo:** Vista `@media print` optimizada para generar el informe técnico con 1 clic.
