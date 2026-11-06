@@ -998,101 +998,102 @@ export function actualizarApp() {
 // =============================================================================
 // INICIALIZACIÓN DE EVENTOS EN EL DOM
 // =============================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Sincronizar inputs
-    sincronizarInputsUI();
-    actualizarApp();
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Sincronizar inputs
+        sincronizarInputsUI();
+        actualizarApp();
 
-    // Listeners para cambios de valores en inputs
-    const bindInput = (id, prop, isFloat = true) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener('input', (e) => {
-            state[prop] = isFloat ? parseFloat(e.target.value) || 0 : e.target.value;
-            actualizarApp();
+        // Listeners para cambios de valores en inputs
+        const bindInput = (id, prop, isFloat = true) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('input', (e) => {
+                state[prop] = isFloat ? parseFloat(e.target.value) || 0 : e.target.value;
+                actualizarApp();
+            });
+        };
+
+        bindInput('inputH', 'h');
+        bindInput('inputR', 'R');
+        bindInput('inputM', 'm');
+        bindInput('inputGammaH', 'gamma_h');
+        bindInput('inputCohesion', 'cohesion');
+        bindInput('inputPhi', 'phi_deg');
+        bindInput('inputYNafPie', 'yNafPie');
+        bindInput('inputGammaSat', 'gamma_sat');
+
+        // Slider y number de número de dovelas sincronizados
+        const inputNDov = document.getElementById('inputNDovelas');
+        const sliderNDov = document.getElementById('sliderNDovelas');
+        if (inputNDov && sliderNDov) {
+            inputNDov.addEventListener('input', (e) => {
+                state.nDovelas = parseInt(e.target.value) || 6;
+                sliderNDov.value = state.nDovelas;
+                actualizarApp();
+            });
+            sliderNDov.addEventListener('input', (e) => {
+                state.nDovelas = parseInt(e.target.value) || 6;
+                inputNDov.value = state.nDovelas;
+                actualizarApp();
+            });
+        }
+
+        // Toggle Nivel Freático
+        const toggleNaf = document.getElementById('toggleNaf');
+        if (toggleNaf) {
+            toggleNaf.addEventListener('change', (e) => {
+                state.tieneNAF = e.target.checked;
+                sincronizarInputsUI();
+                actualizarApp();
+            });
+        }
+
+        // Modo de cálculo de centro
+        const selectModo = document.getElementById('selectModoCentro');
+        if (selectModo) {
+            selectModo.addEventListener('change', (e) => {
+                state.modoCentro = e.target.value;
+                actualizarApp();
+            });
+        }
+
+        // Presets
+        document.getElementById('btnPresetExamen')?.addEventListener('click', () => cargarPreset('examen'));
+        document.getElementById('btnPresetFreatico')?.addEventListener('click', () => cargarPreset('freatico'));
+        document.getElementById('btnPreset9Dov')?.addEventListener('click', () => cargarPreset('9dovelas'));
+        document.getElementById('btnPresetPresa')?.addEventListener('click', () => cargarPreset('presa'));
+
+        // Botones de Exportación
+        document.getElementById('btnExportDXF')?.addEventListener('click', exportarAutoCAD_DXF);
+        document.getElementById('btnExportCSV')?.addEventListener('click', exportarCSV);
+        document.getElementById('btnExportSCR')?.addEventListener('click', generarScriptAutoCAD);
+        document.getElementById('btnPrintReport')?.addEventListener('click', () => window.print());
+
+        // Toggles de visualización
+        document.getElementById('toggleFuerzas')?.addEventListener('change', (e) => {
+            state.mostrarFuerzas = e.target.checked;
+            renderizarSVG();
         });
-    };
-
-    bindInput('inputH', 'h');
-    bindInput('inputR', 'R');
-    bindInput('inputM', 'm');
-    bindInput('inputGammaH', 'gamma_h');
-    bindInput('inputCohesion', 'cohesion');
-    bindInput('inputPhi', 'phi_deg');
-    bindInput('inputYNafPie', 'yNafPie');
-    bindInput('inputGammaSat', 'gamma_sat');
-
-    // Slider y number de número de dovelas sincronizados
-    const inputNDov = document.getElementById('inputNDovelas');
-    const sliderNDov = document.getElementById('sliderNDovelas');
-    if (inputNDov && sliderNDov) {
-        inputNDov.addEventListener('input', (e) => {
-            state.nDovelas = parseInt(e.target.value) || 6;
-            sliderNDov.value = state.nDovelas;
-            actualizarApp();
+        document.getElementById('toggleCotas')?.addEventListener('change', (e) => {
+            state.mostrarCotas = e.target.checked;
+            renderizarSVG();
         });
-        sliderNDov.addEventListener('input', (e) => {
-            state.nDovelas = parseInt(e.target.value) || 6;
-            inputNDov.value = state.nDovelas;
-            actualizarApp();
+        document.getElementById('toggleRadios')?.addEventListener('change', (e) => {
+            state.mostrarRadios = e.target.checked;
+            renderizarSVG();
         });
-    }
 
-    // Toggle Nivel Freático
-    const toggleNaf = document.getElementById('toggleNaf');
-    if (toggleNaf) {
-        toggleNaf.addEventListener('change', (e) => {
-            state.tieneNAF = e.target.checked;
-            sincronizarInputsUI();
-            actualizarApp();
-        });
-    }
+        // Modal de Correo para el Docente
+        const btnCorreo = document.getElementById('btnOpenCorreoModal');
+        const modalCorreo = document.getElementById('modalCorreo');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        const btnCopyCorreo = document.getElementById('btnCopyCorreo');
 
-    // Modo de cálculo de centro
-    const selectModo = document.getElementById('selectModoCentro');
-    if (selectModo) {
-        selectModo.addEventListener('change', (e) => {
-            state.modoCentro = e.target.value;
-            actualizarApp();
-        });
-    }
-
-    // Presets
-    document.getElementById('btnPresetExamen')?.addEventListener('click', () => cargarPreset('examen'));
-    document.getElementById('btnPresetFreatico')?.addEventListener('click', () => cargarPreset('freatico'));
-    document.getElementById('btnPreset9Dov')?.addEventListener('click', () => cargarPreset('9dovelas'));
-    document.getElementById('btnPresetPresa')?.addEventListener('click', () => cargarPreset('presa'));
-
-    // Botones de Exportación
-    document.getElementById('btnExportDXF')?.addEventListener('click', exportarAutoCAD_DXF);
-    document.getElementById('btnExportCSV')?.addEventListener('click', exportarCSV);
-    document.getElementById('btnExportSCR')?.addEventListener('click', generarScriptAutoCAD);
-    document.getElementById('btnPrintReport')?.addEventListener('click', () => window.print());
-
-    // Toggles de visualización
-    document.getElementById('toggleFuerzas')?.addEventListener('change', (e) => {
-        state.mostrarFuerzas = e.target.checked;
-        renderizarSVG();
-    });
-    document.getElementById('toggleCotas')?.addEventListener('change', (e) => {
-        state.mostrarCotas = e.target.checked;
-        renderizarSVG();
-    });
-    document.getElementById('toggleRadios')?.addEventListener('change', (e) => {
-        state.mostrarRadios = e.target.checked;
-        renderizarSVG();
-    });
-
-    // Modal de Correo para el Docente
-    const btnCorreo = document.getElementById('btnOpenCorreoModal');
-    const modalCorreo = document.getElementById('modalCorreo');
-    const btnCloseModal = document.getElementById('btnCloseModal');
-    const btnCopyCorreo = document.getElementById('btnCopyCorreo');
-
-    if (btnCorreo && modalCorreo) {
-        btnCorreo.addEventListener('click', () => {
-            const m = state.modelo;
-            const cuerpo = `Estimado(a) Ing. E. Romoacca,
+        if (btnCorreo && modalCorreo) {
+            btnCorreo.addEventListener('click', () => {
+                const m = state.modelo;
+                const cuerpo = `Estimado(a) Ing. E. Romoacca,
 Docente del curso de Mecánica de Suelos II:
 
 Por medio de la presente, yo, ${state.alumno.toUpperCase()}, identificado con DNI N.° ${state.dni} (últimos dígitos ab = ${state.dni.slice(-2)}), hago entrega formal de la Resolución Individual de la Evaluación Consolidado 2 (C-2) sobre Estabilidad de Taludes por el Método de Dovelas (Metodología de Fellenius y Bishop).
@@ -1128,18 +1129,19 @@ ${state.alumno}
 DNI: ${state.dni}
 Universidad Continental`;
 
-            document.getElementById('correoBodyText').value = cuerpo;
-            modalCorreo.classList.remove('hidden');
-        });
-
-        btnCloseModal?.addEventListener('click', () => modalCorreo.classList.add('hidden'));
-
-        btnCopyCorreo?.addEventListener('click', () => {
-            const txt = document.getElementById('correoBodyText').value;
-            navigator.clipboard.writeText(txt).then(() => {
-                btnCopyCorreo.textContent = "¡Copiado con éxito!";
-                setTimeout(() => { btnCopyCorreo.textContent = "Copiar Texto Completo"; }, 2000);
+                document.getElementById('correoBodyText').value = cuerpo;
+                modalCorreo.classList.remove('hidden');
             });
-        });
-    }
-});
+
+            btnCloseModal?.addEventListener('click', () => modalCorreo.classList.add('hidden'));
+
+            btnCopyCorreo?.addEventListener('click', () => {
+                const txt = document.getElementById('correoBodyText').value;
+                navigator.clipboard.writeText(txt).then(() => {
+                    btnCopyCorreo.textContent = "¡Copiado con éxito!";
+                    setTimeout(() => { btnCopyCorreo.textContent = "Copiar Texto Completo"; }, 2000);
+                });
+            });
+        }
+    });
+}
